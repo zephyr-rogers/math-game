@@ -53,6 +53,9 @@ fn clear_screen() {
 
 fn main() {
 	let mut score = 0; // Initialize score
+	let mut lives = 3; // Initialize lives
+	let mut hidden_score = 0; // Initialize hidden score for tracking life gain
+	const LIFE_THRESHOLD: u32 = 5; // Number of correct answers needed to gain an extra life
 
 	loop {
 		clear_screen(); // Clear screen at the start of each loop iteration
@@ -76,11 +79,23 @@ fn main() {
 		// Check if the user's answer is correct
 		if (user_answer - correct_answer).abs() < 0.01 {
 			score += 1; // Increment score for a correct answer
+			hidden_score += 1; // Increment hidden score for life tracking
 			println!("Correct! Your score is {}.", score);
+
+			// Check if the hidden score has reached the threshold for gaining an extra life
+			if hidden_score >= LIFE_THRESHOLD {
+				lives += 1; // Add an extra life
+				hidden_score = 0; // Reset hidden score
+				println!("Congratulations! You've gained an extra life! Lives remaining: {}.", lives);
+			}
 		} else {
+			lives -= 1; // Decrease lives for an incorrect answer
 			println!("Incorrect. The correct answer was {:.2}.", correct_answer);
-			println!("Game Over. Your final score is {}.", score);
-			break; // End the game on incorrect answer
+			println!("Lives remaining: {}.", lives);
+			if lives == 0 {
+				println!("Game Over. Your final score is {}.", score);
+				break; // End the game when lives are depleted
+			}
 		}
 		std::thread::sleep(Duration::from_secs(1)); // Wait before generating a new question
 	}
